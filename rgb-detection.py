@@ -2,6 +2,18 @@ import depthai as dai
 import numpy as np
 import cv2
 
+# Funktion zur Zeichnung der Augen
+def draw_eyes(image, dominant_color):
+    # Berechne die Position und Größe der Augen
+    eye1_center = (200, 150)
+    eye2_center = (300, 150)
+    eye_radius_x = 40
+    eye_radius_y = 25
+
+    # Zeichne die Augen
+    cv2.ellipse(image, eye1_center, (eye_radius_x, eye_radius_y), 0, 0, 360, dominant_color, -1)
+    cv2.ellipse(image, eye2_center, (eye_radius_x, eye_radius_y), 0, 0, 360, dominant_color, -1)
+
 # Erstelle eine Pipeline
 pipeline = dai.Pipeline()
 
@@ -31,24 +43,19 @@ with dai.Device(pipeline) as device:
         # Finde den vorherrschenden RGB-Wert im Bild
         dominant_color = np.mean(frame, axis=(0, 1))
         
-        # Speichere RGB-Werte in jeweliger Variable
+        # Speichere RGB-Werte in jeweiliger Variable
         red = dominant_color[2]
         green = dominant_color[1]
         blue = dominant_color[0]
         
-        color_rectangle = np.zeros((300, 300, 3), dtype=np.uint8)
-        cv2.rectangle(color_rectangle, (0, 0), (300, 300), (int(blue), int(green), int(red)), -1)
-        cv2.imshow("Farbe", color_rectangle)
+        # Erstelle ein schwarzes Bild
+        iris_image = np.zeros_like(frame)
 
-        # Zeige den vorherrschenden RGB-Wert im Bild an
-        # cv2.putText(frame, f"RGB: {dominant_color}", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        #cv2.putText(frame, f"Red: {red}", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        #cv2.putText(frame, f"Green: {green}", (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        #cv2.putText(frame, f"Blue: {blue}", (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        
-        
-        # Zeige das Bild mit markiertem RGB-Wert an
-        #cv2.imshow("RGB Image", frame)
+        # Zeichne die Augen
+        draw_eyes(iris_image, (int(blue), int(green), int(red)))
+
+        # Zeige das Bild mit den Augen an
+        cv2.imshow("Abstrakte Augen", iris_image)
 
         # Warte auf das Schließen des Fensters
         if cv2.waitKey(1) == ord('q'):
